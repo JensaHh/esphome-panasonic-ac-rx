@@ -287,6 +287,21 @@ void PanasonicAC::log_packet(std::vector<uint8_t> data, bool outgoing) {
     if (this->rx_raw_sensor_ != nullptr) {
       this->rx_raw_sensor_->publish_state(format_hex_pretty(data));
     }
+// Byte-index börjar på 0. Byte 22 är index 21, Byte 24 är index 23.
+    if (data.size() >= 35) {
+      
+      // Batteritemperatur (Byte 22)
+      if (this->battery_sensor_ != nullptr) {
+        float b_temp = (float)data[21] - 128.0; // 0x80 (128) är nollpunkten
+        this->battery_sensor_->publish_state(b_temp);
+      }
+
+      // Rörtemperatur (Byte 24)
+      if (this->pipe_sensor_ != nullptr) {
+        float p_temp = (float)data[23] - 128.0;
+        this->pipe_sensor_->publish_state(p_temp);
+      }
+    }
   }
 }
 
