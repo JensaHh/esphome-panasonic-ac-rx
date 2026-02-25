@@ -43,6 +43,8 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   void set_mild_dry_switch(switch_::Switch *mild_dry_switch);
   void set_current_power_consumption_sensor(sensor::Sensor *current_power_consumption_sensor);
   void set_rx_raw_sensor(text_sensor::TextSensor *rx_raw_sensor) { rx_raw_sensor_ = rx_raw_sensor; }
+  void set_battery_temperature_sensor(sensor::Sensor *s) { this->battery_sensor_ = s; }
+  void set_pipe_temperature_sensor(sensor::Sensor *s) { this->pipe_sensor_ = s; }    
   void set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor);
   void set_current_temperature_offset(int8_t current_temperature_offset);
 
@@ -60,6 +62,8 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   sensor::Sensor *current_temperature_sensor_ = nullptr;        // Sensor to use for current temperature where AC does not report
   sensor::Sensor *current_power_consumption_sensor_ = nullptr;  // Sensor to store current power consumption from queries
   text_sensor::TextSensor *rx_raw_sensor_{nullptr};
+  sensor::Sensor *battery_sensor_{nullptr};
+  sensor::Sensor *pipe_sensor_{nullptr};
   size_t vertical_swing_state_;
   size_t horizontal_swing_state_;
 
