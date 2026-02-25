@@ -282,6 +282,11 @@ void PanasonicAC::log_packet(std::vector<uint8_t> data, bool outgoing) {
     ESP_LOGV(TAG, "TX: %s", format_hex_pretty(data).c_str());
   } else {
     ESP_LOGV(TAG, "RX: %s", format_hex_pretty(data).c_str());
+    
+    // Edited for raw packet sensor
+    if (this->rx_raw_sensor_ != nullptr) {
+      this->rx_raw_sensor_->publish_state(format_hex_pretty(data));
+    }
   }
 }
 
