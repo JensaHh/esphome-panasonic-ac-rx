@@ -156,7 +156,31 @@ void PanasonicAC::update_mild_dry(bool mild_dry) {
 climate::ClimateAction PanasonicAC::determine_action() {
   if (this->mode == climate::CLIMATE_MODE_OFF) {
     return climate::CLIMATE_ACTION_OFF;
-  } else if (this->mode == climate::CLIMATE_MODE_FAN_ONLY) {
+  }
+
+  // 1. Kolla om maskinen faktiskt jobbar (Strömförbrukning)
+  float current_watt = 0.0f;
+  if (this->current_power_consumption_sensor_ != nullptr && 
+      !std::isnan(this->current_power_consumption_sensor_->state)) {
+    current_watt = this->current_power_consumption_sensor_->state;
+  }
+
+  // 2. Kolla avfrostningsflaggan (Byte 7, Bit 0 som vi hittade i loggen)
+  // Vi kan läsa rådatan direkt om vi sparat den, eller använda sensorn om den är skapad
+  bool is_defrosting = false;
+  if (this->data.size() >= 7) {
+    is_defrosting = (this->data[6] & 0x01); 
+  }
+
+  // Om vi frostar av eller drar rejält med ström i HEAT-läge -> HEATING
+  if (this->mode == climate::CLIMATE_MODE_HEAT) {
+    if (is_defrosting || current_watt > 100.0f) {
+      return climate::CLIMATE_ACTION_HEATING;
+    }
+  }
+
+  // --- Resten är standardlogik som fallback ---
+  if (this->mode == climate::CLIMATE_MODE_FAN_ONLY) {
     return climate::CLIMATE_ACTION_FAN;
   } else if (this->mode == climate::CLIMATE_MODE_DRY) {
     return climate::CLIMATE_ACTION_DRYING;
