@@ -78,6 +78,17 @@ PANASONIC_COMMON_SCHEMA = {
     ),
     cv.Optional(CONF_NANOEX_SWITCH): SWITCH_SCHEMA,
     cv.Optional(CONF_OUTSIDE_TEMPERATURE_OFFSET): cv.int_range(min=-15, max=15),
+    cv.Optional(CONF_DISCHARGE_TEMPERATURE): sensor.sensor_schema(
+    unit_of_measurement=UNIT_CELSIUS,
+    accuracy_decimals=0,
+    device_class=DEVICE_CLASS_TEMPERATURE,
+    state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    cv.Optional(CONF_COMPRESSOR_FREQUENCY): sensor.sensor_schema(
+    unit_of_measurement="Hz",
+    accuracy_decimals=0,
+    state_class=STATE_CLASS_MEASUREMENT,
+    ),
 }
 
 PANASONIC_CNT_SCHEMA = {
@@ -154,3 +165,4 @@ async def to_code(config):
     if CONF_PIPE_TEMPERATURE in config:
         sens = await sensor.new_sensor(config[CONF_PIPE_TEMPERATURE])
         cg.add(var.set_pipe_temperature_sensor(sens))
+    
