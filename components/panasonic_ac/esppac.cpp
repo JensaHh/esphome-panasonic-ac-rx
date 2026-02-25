@@ -283,28 +283,62 @@ void PanasonicAC::log_packet(std::vector<uint8_t> data, bool outgoing) {
   } else {
     ESP_LOGV(TAG, "RX: %s", format_hex_pretty(data).c_str());
     
-    // Edited for raw packet sensor
+    // --- RÅDATA SENSOR ---
     if (this->rx_raw_sensor_ != nullptr) {
       this->rx_raw_sensor_->publish_state(format_hex_pretty(data));
     }
-if (data.size() >= 35) {
+
+    // --- DEKODNING AV PAKET (35 bytes) ---
+    if (data.size() >= 35) {
       
-      // Batteritemperatur (Byte 22) - Index 21
-      if (this->battery_sensor_ != nullptr) {
-        // Vi castar till int8_t för att hantera negativa värden korrekt
-        float b_temp = (float)((int8_t)data[21]); 
-        this->battery_sensor_->publish_state(b_temp);
+      // Index 21 (Byte 22): Indoor Pipe / Heat Exchanger
+      if (this->battery_sensor_ != nullptr && data[21] != 0x80) {
+        this->battery_sensor_->publish_state((float)((int8_t)data[21]));
       }
 
-      // Rörtemperatur (Byte 24) - Index 23
-      if (this->pipe_sensor_ != nullptr) {
-        float p_temp = (float)((int8_t)data[23]);
-        this->pipe_sensor_->publish_state(p_temp);
+      // Index 22 (Byte 23): Outdoor Air Temp (Faktisk utetemp från pumpens sensor)
+      if (this->outside_temperature_sensor_ != nullptr && data[22] != 0x80) {
+        this->outside_temperature_sensor_->publish_state((float)((int8_t)data[22]));
+      }
+
+      // Index 23 (Byte 24): Outdoor Pipe Temp
+      if (this->pipe_sensor_ != nullptr && data[23] != 0x80) {
+        this->pipe_sensor_->publish_state((float)((int8_t)data[23]));
+      }
+
+      // Index 24 (Byte 25): Discharge Temp (Hetgas från kompressorn)
+      if (this->discharge_sensor_ != nullptr && data[24] != 0x80) {
+        this->discharge_sensor_->publish_state((float)((int8_t)data[24]));
+      }
+
+      // Index 26 (Byte 27): Compressor Frequency (Hz)
+      // Visar exakt hur hårt kompressorn snurrar
+      if (this->compressor_frequency_sensor_ != nullptr && data[26] != 0xFE) {
+        this->compressor_frequency_sensor_->publish_state((float)data[26]);
+      }
+
+      // Index 28-29 (Byte 29-30): Power Consumption (Watt)
+      // Formel: (B29 + B30*256) - B31
+      if (this->current_power_consumption_sensor_ != nullptr) {
+        uint16_t raw_watt = data[28] | (uint16_t(data[29]) << 8);
+        uint8_t offset = data[30]; // Byte 31 (Index 30)
+        float final_watt = (float)raw_watt - (float)offset;
+        
+        if (final_watt < 0) final_watt = 0;
+        this->current_power_consumption_sensor_->publish_state(final_watt);
+      }
+
+      // --- AVFROSTNINGS-FLAGGA (Loggas till console) ---
+      // Bit 0 på Byte 7 indikerar ofta avfrostning enligt dokumentet
+      bool is_defrosting = (data[6] & 0x01);
+      if (is_defrosting) {
+        ESP_LOGD(TAG, "Status: Maskinen kör avfrostning!");
       }
     }
-   
   }
 }
+   
+ 
 
 }  // namespace panasonic_ac
 }  // namespace esphome
