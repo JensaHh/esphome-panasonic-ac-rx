@@ -7,7 +7,7 @@ from esphome.const import (
 )
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import uart, climate, sensor, select, switch
+from esphome.components import uart, climate, sensor, select, switch, text_sensor
 
 AUTO_LOAD = ["switch", "sensor", "select"]
 DEPENDENCIES = ["uart"]
@@ -42,6 +42,7 @@ CONF_MILD_DRY_SWITCH = "mild_dry_switch"
 CONF_CURRENT_POWER_CONSUMPTION = "current_power_consumption"
 CONF_WLAN = "wlan"
 CONF_CNT = "cnt"
+CONF_RX_RAW = "rx_raw"
 
 HORIZONTAL_SWING_OPTIONS = ["auto", "left", "left_center", "center", "right_center", "right"]
 
@@ -52,6 +53,7 @@ SWITCH_SCHEMA = switch.switch_schema(PanasonicACSwitch).extend(cv.COMPONENT_SCHE
 SELECT_SCHEMA = select.select_schema(PanasonicACSelect)
 
 PANASONIC_COMMON_SCHEMA = {
+    cv.Optional(CONF_RX_RAW): text_sensor.text_sensor_schema(),
     cv.Optional(CONF_HORIZONTAL_SWING_SELECT): SELECT_SCHEMA,
     cv.Optional(CONF_VERTICAL_SWING_SELECT): SELECT_SCHEMA,
     cv.Optional(CONF_OUTSIDE_TEMPERATURE): sensor.sensor_schema(
@@ -127,3 +129,7 @@ async def to_code(config):
     if CONF_CURRENT_POWER_CONSUMPTION in config:
         sens = await sensor.new_sensor(config[CONF_CURRENT_POWER_CONSUMPTION])
         cg.add(var.set_current_power_consumption_sensor(sens))
+        
+    if CONF_RX_RAW in config:
+        sens = await text_sensor.new_text_sensor(config[CONF_RX_RAW])
+        cg.add(var.set_rx_raw_sensor(sens))
