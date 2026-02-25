@@ -44,7 +44,9 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   void set_current_power_consumption_sensor(sensor::Sensor *current_power_consumption_sensor);
   void set_rx_raw_sensor(text_sensor::TextSensor *rx_raw_sensor) { rx_raw_sensor_ = rx_raw_sensor; }
   void set_battery_temperature_sensor(sensor::Sensor *s) { this->battery_sensor_ = s; }
-  void set_pipe_temperature_sensor(sensor::Sensor *s) { this->pipe_sensor_ = s; }    
+  void set_pipe_temperature_sensor(sensor::Sensor *s) { this->pipe_sensor_ = s; }  
+  void set_discharge_temperature_sensor(sensor::Sensor *s) { this->discharge_sensor_ = s; }
+  void set_compressor_frequency_sensor(sensor::Sensor *s) { this->compressor_frequency_sensor_ = s; }
   void set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor);
   void set_current_temperature_offset(int8_t current_temperature_offset);
 
@@ -64,8 +66,11 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   text_sensor::TextSensor *rx_raw_sensor_{nullptr};
   sensor::Sensor *battery_sensor_{nullptr};
   sensor::Sensor *pipe_sensor_{nullptr};
+  sensor::Sensor *discharge_sensor_{nullptr};
+  sensor::Sensor *compressor_frequency_sensor_{nullptr};
   size_t vertical_swing_state_;
   size_t horizontal_swing_state_;
+
 
   int8_t current_temperature_offset_ = 0;  // current temperature offset to compensate internal sensor values
   int8_t outside_temperature_offset_ = 0;  // outside temperature offset to compensate internal sensor values
