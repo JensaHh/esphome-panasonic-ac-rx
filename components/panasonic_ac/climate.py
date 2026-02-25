@@ -43,6 +43,8 @@ CONF_CURRENT_POWER_CONSUMPTION = "current_power_consumption"
 CONF_WLAN = "wlan"
 CONF_CNT = "cnt"
 CONF_RX_RAW = "rx_raw"
+CONF_BATTERY_TEMPERATURE = "battery_temperature"
+CONF_PIPE_TEMPERATURE = "pipe_temperature"
 
 HORIZONTAL_SWING_OPTIONS = ["auto", "left", "left_center", "center", "right_center", "right"]
 
@@ -54,6 +56,18 @@ SELECT_SCHEMA = select.select_schema(PanasonicACSelect)
 
 PANASONIC_COMMON_SCHEMA = {
     cv.Optional(CONF_RX_RAW): text_sensor.text_sensor_schema(),
+    cv.Optional(CONF_BATTERY_TEMPERATURE): sensor.sensor_schema(
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        device_class=DEVICE_CLASS_TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
+    cv.Optional(CONF_PIPE_TEMPERATURE): sensor.sensor_schema(
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        device_class=DEVICE_CLASS_TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT,
+    ),
     cv.Optional(CONF_HORIZONTAL_SWING_SELECT): SELECT_SCHEMA,
     cv.Optional(CONF_VERTICAL_SWING_SELECT): SELECT_SCHEMA,
     cv.Optional(CONF_OUTSIDE_TEMPERATURE): sensor.sensor_schema(
@@ -133,3 +147,10 @@ async def to_code(config):
     if CONF_RX_RAW in config:
         sens = await text_sensor.new_text_sensor(config[CONF_RX_RAW])
         cg.add(var.set_rx_raw_sensor(sens))
+    if CONF_BATTERY_TEMPERATURE in config:
+        sens = await sensor.new_sensor(config[CONF_BATTERY_TEMPERATURE])
+        cg.add(var.set_battery_temperature_sensor(sens))
+    
+    if CONF_PIPE_TEMPERATURE in config:
+        sens = await sensor.new_sensor(config[CONF_PIPE_TEMPERATURE])
+        cg.add(var.set_pipe_temperature_sensor(sens))
