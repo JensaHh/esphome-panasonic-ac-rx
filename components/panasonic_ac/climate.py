@@ -45,7 +45,8 @@ CONF_CNT = "cnt"
 CONF_RX_RAW = "rx_raw"
 CONF_BATTERY_TEMPERATURE = "battery_temperature"
 CONF_PIPE_TEMPERATURE = "pipe_temperature"
-
+CONF_DISCHARGE_TEMPERATURE = "discharge_temperature"
+CONF_COMPRESSOR_FREQUENCY = "compressor_frequency"
 HORIZONTAL_SWING_OPTIONS = ["auto", "left", "left_center", "center", "right_center", "right"]
 
 VERTICAL_SWING_OPTIONS = ["swing", "auto", "up", "up_center", "center", "down_center", "down"]
