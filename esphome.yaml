@@ -1,0 +1,116 @@
+esphome:
+  name: panasonic-lz35
+  friendly_name: "Panasonic LZ35"
+  on_boot:
+    priority: 100
+    then:
+      - switch.turn_on: enable_shifter
+
+substitutions:
+  long_devicename: Panasonic Climate hall(changeme)
+  
+esp8266:
+  board: esp12e
+
+external_components:
+  source: github://jensaHh/esphome-panasonic-ac-rx
+  components: [panasonic_ac]
+
+uart:
+  id: bus_ac
+  tx_pin: GPIO15
+  rx_pin: GPIO13
+  baud_rate: 9600
+  data_bits: 8
+  parity: EVEN
+  stop_bits: 1
+
+wifi:
+  ssid: "your ssid(change)"
+  password: "your wifi password(change)"
+  min_auth_mode: WPA2
+  # Skapar eget WiFi om ditt hemmanätverk inte hittas
+  ap:
+    ssid: "fallback ap ssid(change)"
+    password: "fallback password (change)"
+
+captive_portal:
+    
+web_server:
+  port: 80
+  
+logger:
+  level: DEBUG
+
+
+
+ota:
+  - platform: esphome
+
+#logger:
+#  level: VERY_VERBOSE # Krävs för att se råa paket
+#  baud_rate: 0 # Inaktiverar loggning via UART-pinnarna så de inte krockar med pumpen
+
+api:
+
+switch:
+  - platform: restart
+    name: "$long_devicename Restart"
+  - platform: gpio
+    pin: GPIO5
+    id: enable_shifter
+    name: "Level Shifter Power"
+    restore_mode: ALWAYS_ON
+    internal: true
+
+
+
+  
+climate:
+  - platform: panasonic_ac
+    id: office
+    type: cnt
+    name: "$long_devicename"
+    horizontal_swing_select:
+      name: Panasonic AC Horizontal Swing Mode
+    vertical_swing_select:
+      name: Panasonic AC Vertical Swing Mode
+    outside_temperature:
+      name: "$long_devicename Outside Temperature"
+    current_power_consumption:
+      id: power_consumption_office
+      name: "$long_devicename Power Consumption"
+      unit_of_measurement: W
+      accuracy_decimals: 0
+      device_class: power
+      state_class: measurement
+    econavi_switch:
+      name: Econavi switch
+    mild_dry_switch:
+      name: Panasonic AC Mild Dry Switch
+    eco_switch:
+      name: Panasonic AC Eco Switch
+    nanoex_switch:
+      name: Panasonic AC NanoeX Switch
+    rx_raw:
+      name: "Panasonic Raw RX"
+    battery_temperature:
+      name: "Panasonic Heat Exchanger"
+    pipe_temperature:
+      name: "Panasonic Pipe Temp"
+    discharge_temperature:
+      name: "Panasonic Discharge Temp"
+    compressor_frequency:
+      name: "Panasonic Compressor Frequency"
+      
+sensor:
+  - platform: total_daily_energy
+    name: "$long_devicename Total Daily Energy"
+    power_id: power_consumption_office
+    filters:
+        - multiply: 0.001
+    unit_of_measurement: kWh
+    device_class: energy
+time:
+  - platform: homeassistant
+    id: my_time
