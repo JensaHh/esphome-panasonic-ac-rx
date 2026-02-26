@@ -1,3 +1,22 @@
+Note that this is a fork. Developed on ThehogNL heishamon small pcb with esp8266 esp-12F soc. 
+Data collected and verified ssjoholm panasonic-cn-cnt vonderful data:
+example data from a LZ35TKE: 
+70.20.44.2A.80.30.36.00.00.00.00.00.4C.2E.02.00.00.00.80.80.FF.17.00.FF.80.80.FF.80.C8.01.0B.00.00.00.38 
+
+Byte,Funktion,Avkodning / Logik,Status
+0,Header,Alltid 0x70,✅ Confirmed
+2,Power/Mode,"0x44=Heat/On, 0x42=Cool/On, 0x40=Off",✅ Confirmed
+3,Target Temp,Hex/2 (ex: 42/2=21∘C),✅ Confirmed
+5,Fan Speed,"0x30=1, 0x40=2, 0x50=3, 0x60=4, 0x70=5, 0xA0=Auto",✅ Confirmed
+6,Swing,"0x36=Off/Center, 0xFD=Auto/Both",✅ Confirmed
+12,Op Status,"0x4C=Drift, 0x40=Idle/Termostat nådd",✅ Confirmed
+14,Defrost,"0x02 = Avfrostning aktiv, 0x00 = Normal",✅ Confirmed
+21,Indoor Coil,Inomhusbatteriets temp i ∘C,✅ Confirmed
+22,Outside Temp,Utomhustemperatur i ∘C,✅ Confirmed
+28-29,Power,(Byte28+(Byte29×256))×1.10,✅ Confirmed
+30,Current,Byte30/5.0 (Ampere),✅ Confirmed
+
+Data port under right side cover, remove 2 screws and then remove metal cover, uses plastic clips. if there is intrest i will make a detailed instruction. See example espheme.yaml for example conf (not optimized!)
 # Overview
 
 An open source alternative for the Panasonic wi-fi adapter that works locally without the cloud.
